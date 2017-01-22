@@ -1,0 +1,44 @@
+---
+title: "Books reserved in Brussels libraries in 2015"
+author: "Francois Roland"
+date: "January 22, 2017"
+output: ioslides_presentation
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = FALSE)
+library(dplyr)
+library(ggplot2)
+library(plotly)
+```
+
+## Data
+
+The following data come from Brussels city open data initiative: https://opendata.brussels.be.
+
+They represent how many books were reserved in each of Brussels libraries in 2015.
+
+These were downloaded on January 22, 2017.
+
+## Reservations by library
+
+```{r loading}
+book_reservations <- read.csv2(file.path("data", "book-reservations.csv"), stringsAsFactors = FALSE)
+reservations_by_library <- book_reservations %>%
+  select(library = Bibliothèque, reservations = Nombre.de.réservations) %>%
+  group_by(library) %>%
+  summarize(reservations = sum(reservations)) %>%
+  arrange(reservations)
+library_levels <- reservations_by_library$library
+reservations_by_library <- reservations_by_library %>%
+  mutate(library = factor(library, levels = library_levels))
+plot_ly(
+  x = reservations_by_library$reservations,
+  y = reservations_by_library$library,
+  type = 'bar',
+) %>%
+  layout(
+    margin = list(l = 120)
+  )
+```
+
